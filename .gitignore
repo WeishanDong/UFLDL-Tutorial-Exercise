@@ -1,0 +1,6 @@
+*.asv
+*.gz
+*.zip
+cnn_exercise/cnnPooledFeatures.mat
+stackedae_exercise/*.mat
+stl_exercise/*.mat
