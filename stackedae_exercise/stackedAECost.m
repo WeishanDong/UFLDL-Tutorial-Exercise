@@ -65,14 +65,11 @@ groundTruth = full(sparse(labels, 1:m, 1));
 nl = numel(stack) + 1;
 % a = cell(size(stack) + [1 0]);  
 a = cell([nl 1]);   % a{1}==data is not actually filled to save memory
+a{1} = data;
 for d = 1:numel(stack)
 %     z = stack{d}.w*a{d} + repmat(stack{d}.b, 1, m);
 %     a = sigmoid(z);
-    if d == 1
-        a{d+1} = sigmoid( stack{d}.w*data + repmat(stack{d}.b, 1, m) );
-    else
-        a{d+1} = sigmoid( stack{d}.w*a{d} + repmat(stack{d}.b, 1, m) );
-    end
+    a{d+1} = sigmoid( stack{d}.w*a{d} + repmat(stack{d}.b, 1, m) );
 end
 
 
@@ -96,15 +93,11 @@ softmaxThetaGrad = -1/m*(groundTruth - h)*a{nl}' + lambda*softmaxTheta;
 % backward %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 delta = cell(size(a));
 delta{nl} = - softmaxTheta'*(groundTruth - h) .* (a{nl}.*(1-a{nl}));
-for d = nl-1:2
+for d = nl-1:-1:2
     delta{d} = stack{d}.w'*delta{d+1} .* (a{d}.*(1-a{d}));
 end
 for d = 1:numel(stack)
-    if d == 1
-        stackgrad{d}.w = (delta{d+1}*data')/m;% + lambda*stack{d}.w;
-    else
-        stackgrad{d}.w = (delta{d+1}*a{d}')/m;% + lambda*stack{d}.w;
-    end
+    stackgrad{d}.w = (delta{d+1}*a{d}')/m;% + lambda*stack{d}.w;
     stackgrad{d}.b = sum(delta{d+1},2)/m;
 end
 
